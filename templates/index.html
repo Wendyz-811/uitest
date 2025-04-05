@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Non-Verbal Potato Meme Generator</title>
+  <script defer src="{{ url_for('static', filename='face-api.min.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: sans-serif;
+    }
+    video {
+      margin-top: 20px;
+      border: 2px solid #ccc;
+    }
+    #emotion-output {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+    #generate-btn {
+      margin-top: 10px;
+      padding: 10px 20px;
+    }
+    #meme {
+      margin-top: 20px;
+      max-width: 600px;
+    }
+    canvas {
+      position: absolute;
+    }
+  </style>
+</head>
+<div id="video-container">
+  <video id="video" width="720" height="560" autoplay muted></video>
+</div>
+<body>
+  <h1>Emotion-Based Potato Meme Generator</h1>
+  <video id="video" width="720" height="560" autoplay muted></video>
+  <div id="emotion-output">Detecting emotion...</div>
+  <button id="generate-btn">Generate Meme</button>
+  <img id="meme" src="" alt="Generated Meme" />
+</body>
+
+
+</html>
+
