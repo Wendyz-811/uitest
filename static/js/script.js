@@ -1,4 +1,5 @@
 const video = document.getElementById('video');
+const videoContainer = document.getElementById('video-container');
 const emotionOutput = document.getElementById('emotion-output');
 const generateBtn = document.getElementById('generate-btn');
 const memeImage = document.getElementById('meme');
@@ -13,37 +14,47 @@ Promise.all([
 ]).then(startVideo);
 
 function startVideo() {
-  navigator.getUserMedia(
-    { video: {} },
-    stream => video.srcObject = stream,
-    err => console.error(err)
-  );
+  navigator.mediaDevices.getUserMedia({ video: {} })
+    .then(stream => {
+      video.srcObject = stream;
+    })
+    .catch(err => console.error("Camera error:", err));
 }
 
 video.addEventListener('play', () => {
   const canvas = faceapi.createCanvasFromMedia(video);
-  document.body.append(canvas);
-  const displaySize = { width: video.width, height: video.height };
+  videoContainer.appendChild(canvas);
+
+  const displaySize = {
+    width: video.videoWidth,
+    height: video.videoHeight
+  };
+
+  canvas.width = displaySize.width;
+  canvas.height = displaySize.height;
+
   faceapi.matchDimensions(canvas, displaySize);
 
   setInterval(async () => {
-    const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+    const detections = await faceapi
+      .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
       .withFaceLandmarks()
       .withFaceExpressions();
 
     const resizedDetections = faceapi.resizeResults(detections, displaySize);
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+
     faceapi.draw.drawDetections(canvas, resizedDetections);
     faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
     faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
 
     if (detections.length > 0) {
       currentEmotions = detections[0].expressions;
-      const sorted = Object.entries(currentEmotions)
+      const top2 = Object.entries(currentEmotions)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 2)
         .map(e => `${e[0]} (${(e[1] * 100).toFixed(1)}%)`);
-      emotionOutput.innerText = `Top Emotions: ${sorted.join(', ')}`;
+      emotionOutput.innerText = `Top Emotions: ${top2.join(', ')}`;
     }
   }, 500);
 });
@@ -60,7 +71,7 @@ generateBtn.addEventListener('click', async () => {
     .map(e => e[0]);
 
   const emotionWords = top2.join(', ');
-  const prompt = `meme: a (${emotionWords}) tired potato cartoon `;
+  const prompt = `meme: a (${emotionWords}) tired potato cartoon style`;
 
   const response = await fetch('/api/generate', {
     method: 'POST',

@@ -26,7 +26,7 @@ def generate():
     payload = { "inputs": prompt }
 
     try:
-        response = requests.post(API_URL, headers=headers, json=payload, timeout=300)
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=1000)
         if response.status_code == 200 and "image" in response.headers.get("Content-Type", ""):
             b64_image = base64.b64encode(response.content).decode('utf-8')
             return jsonify({"image": b64_image})
@@ -36,4 +36,4 @@ def generate():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5027)
+    app.run(debug=True, port=5044)

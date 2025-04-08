@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Non-Verbal Potato Meme Generator</title>
   <script defer src="{{ url_for('static', filename='face-api.min.js') }}"></script>
   <script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
@@ -9,43 +9,66 @@
     body {
       margin: 0;
       padding: 0;
+      font-family: sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      font-family: sans-serif;
+      background: #f9f9f9;
     }
-    video {
+
+    h1 {
       margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    #video-container {
+      position: relative;
+      width: 720px;
+      height: 560px;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      display: block;
       border: 2px solid #ccc;
     }
-    #emotion-output {
-      margin-top: 10px;
-      font-size: 18px;
-    }
-    #generate-btn {
-      margin-top: 10px;
-      padding: 10px 20px;
-    }
-    #meme {
-      margin-top: 20px;
-      max-width: 600px;
-    }
+
     canvas {
       position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    #emotion-output {
+      margin-top: 15px;
+      font-size: 18px;
+      color: #333;
+    }
+
+    #generate-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #meme {
+      margin-top: 25px;
+      max-width: 600px;
+      border: 2px solid #ccc;
     }
   </style>
 </head>
-<div id="video-container">
-  <video id="video" width="720" height="560" autoplay muted></video>
-</div>
 <body>
   <h1>Emotion-Based Potato Meme Generator</h1>
-  <video id="video" width="720" height="560" autoplay muted></video>
+
+  <div id="video-container">
+    <video id="video" autoplay muted playsinline></video>
+  </div>
+
   <div id="emotion-output">Detecting emotion...</div>
   <button id="generate-btn">Generate Meme</button>
   <img id="meme" src="" alt="Generated Meme" />
 </body>
-
-
 </html>
-
