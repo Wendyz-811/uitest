@@ -2,73 +2,293 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Non-Verbal Potato Meme Generator</title>
+  <title>Emotion-Based Meme Generator</title>
   <script defer src="{{ url_for('static', filename='face-api.min.js') }}"></script>
   <script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
   <style>
     body {
       margin: 0;
-      padding: 0;
-      font-family: sans-serif;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    
+    .panel {
+      flex: 1;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      background: #f9f9f9;
+      height: 800px;
     }
-
-    h1 {
-      margin-top: 20px;
-      margin-bottom: 10px;
+    
+    h2 {
+      margin-top: 0;
+      color: #333;
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
     }
-
+    
     #video-container {
       position: relative;
-      width: 720px;
-      height: 560px;
+      width: 100%;
+      height: 750px;
+      margin-bottom: 15px;
+      background-color: #000;
+      border-radius: 8px;
+      overflow: hidden;
     }
-
+    
     video {
       width: 100%;
       height: 100%;
+      object-fit: cover;
       display: block;
-      border: 2px solid #ccc;
     }
-
+    
     canvas {
       position: absolute;
       top: 0;
       left: 0;
     }
-
-    #emotion-output {
-      margin-top: 15px;
-      font-size: 18px;
-      color: #333;
-    }
-
-    #generate-btn {
-      margin-top: 15px;
-      padding: 10px 20px;
+    
+    .emotion-display {
+      margin-top: auto;
+      padding: 15px;
+      background-color: #e9f5f9;
+      border-radius: 8px;
       font-size: 16px;
+    }
+    
+    #emotion-output {
+      margin: 0;
+      font-weight: 500;
+    }
+    
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .character-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .character-selector label {
+      font-weight: 500;
+      font-size: 16px;
+      min-width: 140px;
+    }
+    
+    .character-selector select {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+    
+    .generate-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 0;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: 500;
       cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .generate-btn:hover {
+      background-color: #eac029;
+    }
+    
+    .meme-container {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    #meme-image {
+      max-width: 100%;
+      max-height: 550px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    
+    .emotions-used {
+      width: 100%;
+      padding: 15px;
+      font-style: italic;
+      color: #555;
+      background-color: #e9f5f9;
+      border-radius: 8px;
+      margin-top: 15px;
+      text-align: center;
+    }
+    
+    .loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      display: none;
+    }
+    
+    .loading-spinner {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #eac029;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .share-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      width: 100%;
+    }
+    
+    .share-button {
+      flex: 1;
+      padding: 10px 0;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    
+    .twitter { background-color: #1DA1F2; }
+    .save { background-color: #28a745; }
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #333;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 1000;
+      animation: fadein 0.5s;
     }
 
-    #meme {
-      margin-top: 25px;
-      max-width: 600px;
-      border: 2px solid #ccc;
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @media (max-width: 992px) {
+      .container {
+        flex-direction: column;
+      }
+      
+      .panel {
+        height: auto;
+      }
+      
+      #video-container, .meme-container {
+        height: 400px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Emotion-Based Potato Meme Generator</h1>
+  <div class="toast" id="toast">Message here</div>
 
-  <div id="video-container">
-    <video id="video" autoplay muted playsinline></video>
+  <div class="container">
+    <div class="panel">
+      <h2>Emotion Detection</h2>
+      
+      <div id="video-container">
+        <video id="video" autoplay muted playsinline></video>
+      </div>
+      
+      <div class="emotion-display">
+        <p id="emotion-output">Detecting emotions...</p>
+      </div>
+    </div>
+    
+
+    <div class="panel">
+      <h2>Meme Generator</h2>
+      
+      <div class="controls">
+        <div class="character-selector">
+          <label for="character-select">Choose a character:</label>
+          <select id="character-select">
+            <option value="potato">Potato</option>
+            <option value="carrot" selected>Carrot</option>
+            <option value="tomato">Tomato</option>
+            <option value="broccoli">Broccoli</option>
+            <option value="corn">Corn</option>
+            <option value="eggplant">Eggplant</option>
+          </select>
+        </div>
+        
+        <button id="generate-btn" class="generate-btn">Generate Meme</button>
+      </div>
+      
+      <div class="meme-container">
+        <div class="loading" id="loading">
+          <div class="loading-spinner"></div>
+          <p>Generating your meme...</p>
+        </div>
+        <img id="meme-image" alt="Your generated meme will appear here">
+      </div>
+      
+      <div class="emotions-used" id="emotions-used"></div>
+      
+      <div class="share-buttons" id="share-buttons">
+        <button class="share-button twitter" id="share-twitter">Twitter</button>
+        <button class="share-button save" id="download-meme">Save Meme</button>
+      </div>
+    </div>
   </div>
-
-  <div id="emotion-output">Detecting emotion...</div>
-  <button id="generate-btn">Generate Meme</button>
-  <img id="meme" src="" alt="Generated Meme" />
 </body>
 </html>
