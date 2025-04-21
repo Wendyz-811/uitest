@@ -1,14 +1,17 @@
 // DOM Elements
 const video = document.getElementById('video');
 const videoContainer = document.getElementById('video-container');
-const emotionOutput = document.getElementById('emotion-output');
+const topEmotion = document.getElementById('top-emotion');
 const generateBtn = document.getElementById('generate-btn');
+const regenerateBtn = document.getElementById('regenerate-btn');
 const memeImage = document.getElementById('meme-image');
+const memeResult = document.getElementById('meme-result');
+const memeActions = document.getElementById('meme-actions');
 const characterSelect = document.getElementById('character-select');
 const loadingDiv = document.getElementById('loading');
-const shareButtons = document.getElementById('share-buttons');
 const emotionsUsed = document.getElementById('emotions-used');
 const toast = document.getElementById('toast');
+const veggieOptions = document.querySelectorAll('.veggie-option');
 
 // Social media buttons
 const shareToTwitter = document.getElementById('share-twitter');
@@ -18,6 +21,7 @@ const downloadMeme = document.getElementById('download-meme');
 let currentEmotions = {};
 let generatedMemeUrl = '';
 let uploadedImageUrl = ''; // Store URL after uploading to server
+let selectedVeggie = 'carrot'; // Default veggie
 
 // Show toast notification
 function showToast(message, duration = 3000) {
@@ -29,6 +33,23 @@ function showToast(message, duration = 3000) {
   }, duration);
 }
 
+// Set up veggie options click handlers
+veggieOptions.forEach(option => {
+  option.addEventListener('click', () => {
+    // Remove selected class from all options
+    veggieOptions.forEach(opt => opt.classList.remove('selected'));
+    
+    // Add selected class to clicked option
+    option.classList.add('selected');
+    
+    // Update selected veggie value
+    selectedVeggie = option.dataset.value;
+    
+    // Update the hidden select for compatibility
+    characterSelect.value = selectedVeggie;
+  });
+});
+
 // Load face detection models
 Promise.all([
   faceapi.nets.tinyFaceDetector.loadFromUri('/static/models'),
@@ -36,7 +57,7 @@ Promise.all([
 ]).then(startVideo)
   .catch(err => {
     console.error("Error loading face-api models:", err);
-    emotionOutput.innerText = "Error loading face detection models. Please check console.";
+    topEmotion.innerText = "Error loading face detection models. Please check console.";
     showToast("Error loading face detection models", 5000);
   });
 
@@ -50,7 +71,7 @@ function startVideo() {
     })
     .catch(err => {
       console.error("Camera error:", err);
-      emotionOutput.innerText = "Camera error: " + err.message;
+      topEmotion.innerText = "Camera error: " + err.message;
       showToast("Camera access denied. Please allow camera access.", 5000);
     });
 }
@@ -100,18 +121,6 @@ video.addEventListener('play', () => {
           box.x + 5, 
           box.y - 10
         );
-        
-        // Display the dominant emotion with percentage at bottom of box
-        const dominantEmotion = Object.entries(detection.expressions)
-          .sort((a, b) => b[1] - a[1])[0];
-        
-        const emotionText = `${dominantEmotion[0]} (${(dominantEmotion[1] * 100).toFixed(0)}%)`;
-        const textWidth = ctx.measureText(emotionText).width + 10;
-        
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(box.x, box.y + box.height, textWidth, 30);
-        ctx.fillStyle = '#FFF';
-        ctx.fillText(emotionText, box.x + 5, box.y + box.height + 20);
       });
       
       // Update current emotions from first detected face
@@ -121,20 +130,19 @@ video.addEventListener('play', () => {
       const top2 = Object.entries(currentEmotions)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 2)
-        .map(e => `${e[0]} (${(e[1] * 100).toFixed(1)}%)`);
+        .map(e => e[0]);
       
-      emotionOutput.innerHTML = `
-        <strong>Top Emotions:</strong> ${top2.join(', ')}
-      `;
+      // Update the top emotion display
+      topEmotion.innerText = `Top two Emotion: ${top2.join(', ')}`;
     } else {
-      emotionOutput.innerText = "No face detected";
+      topEmotion.innerText = "No face detected";
     }
   }, 500);
 });
 
-// Generate meme button click handler
-generateBtn.addEventListener('click', async () => {
-  console.log("Generate button clicked");
+// Generate meme function (used by both generate and regenerate buttons)
+async function generateMeme() {
+  console.log("Generating meme");
   
   if (!currentEmotions || Object.keys(currentEmotions).length === 0) {
     showToast("No emotion detected. Please make sure your face is visible to the camera.");
@@ -144,14 +152,13 @@ generateBtn.addEventListener('click', async () => {
   // Reset previous uploaded URL
   uploadedImageUrl = '';
   
-  // Show loading indicator
+  // Hide generate button and show loading
+  generateBtn.style.display = 'none';
   loadingDiv.style.display = 'flex';
   
-  // Hide meme image while loading
-  memeImage.style.display = 'none';
-  
-  // Hide share buttons
-  shareButtons.style.display = 'none';
+  // Hide meme result and actions while loading
+  memeResult.style.display = 'none';
+  memeActions.style.display = 'none';
   
   // Get top 2 emotions
   const top2 = Object.entries(currentEmotions)
@@ -160,8 +167,8 @@ generateBtn.addEventListener('click', async () => {
   
   const emotionWords = top2.map(e => e[0]).join(', ');
   
-  // Get character from select
-  const character = characterSelect.value;
+  // Get character from selected veggie
+  const character = selectedVeggie;
   
   // Create prompt for image generation
   const prompt = `meme: a (${emotionWords}) tired ${character} cartoon style`;
@@ -184,34 +191,52 @@ generateBtn.addEventListener('click', async () => {
     loadingDiv.style.display = 'none';
     
     if (data.image) {
+      // Store the generated image URL
       generatedMemeUrl = "data:image/png;base64," + data.image;
       
+      // Display the image
       memeImage.src = generatedMemeUrl;
-      memeImage.style.display = 'block';
+      memeResult.style.display = 'block';
       console.log("Meme image set and displayed");
+      
+      // Show action buttons
+      memeActions.style.display = 'flex';
+      
+      // Display emotions used for this meme
       const emotionPercentages = top2.map(e => `${e[0]} (${(e[1] * 100).toFixed(1)}%)`);
       emotionsUsed.innerHTML = `
-        <strong>Emotions in this meme:</strong> ${emotionPercentages.join(', ')}
+        ${emotionPercentages.join(', ')}
       `;
       
-      shareButtons.style.display = 'flex';
-      
+      // Upload the image to server for sharing
       await uploadImageToServer();
     } else {
       console.error("Failed to generate meme:", data.error);
       showToast("Failed to generate meme: " + (data.error || "Unknown error"));
+      
+      // Show generate button again if there was an error
+      generateBtn.style.display = 'block';
     }
   } catch (error) {
     console.error("Error generating meme:", error);
     
-
+    // Hide loading indicator in case of error
     loadingDiv.style.display = 'none';
+    
+    // Show generate button again
+    generateBtn.style.display = 'block';
     
     showToast("Error generating meme: " + error.message);
   }
-});
+}
 
+// Generate button click handler
+generateBtn.addEventListener('click', generateMeme);
 
+// Regenerate button click handler
+regenerateBtn.addEventListener('click', generateMeme);
+
+// Upload the generated image to the server
 async function uploadImageToServer() {
   if (!generatedMemeUrl) return null;
   
@@ -240,7 +265,9 @@ async function uploadImageToServer() {
 
 // Share on Twitter
 shareToTwitter.addEventListener('click', async () => {
+  // Make sure we have a URL to share
   if (!uploadedImageUrl) {
+    // Try to upload the image first
     const imageUrl = await uploadImageToServer();
     
     if (!imageUrl) {
@@ -252,11 +279,13 @@ shareToTwitter.addEventListener('click', async () => {
   // Create Twitter share URL
   const text = `Check out my emotion-based meme created with Emotion Meme Generator!`;
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(uploadedImageUrl)}`;
-
+  
+  // Open Twitter in a new window
   window.open(twitterUrl, '_blank');
   showToast("Opening Twitter to share your meme!");
 });
 
+// Download meme
 downloadMeme.addEventListener('click', () => {
   if (!generatedMemeUrl) {
     showToast("No meme has been generated yet!");

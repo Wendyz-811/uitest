@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Emotion-Based Meme Generator</title>
   <script defer src="{{ url_for('static', filename='face-api.min.js') }}"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
   <style>
     body {
@@ -39,13 +40,27 @@
       text-align: center;
       padding-bottom: 10px;
       border-bottom: 1px solid #eee;
+      font-weight: bold;
+      font-size: 28px;
+    }
+    
+    .top-emotion {
+      text-align: center;
+      font-size: 20px;
+      margin: 10px 0 20px;
+      font-weight: 500;
+    }
+    
+    .video-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
     
     #video-container {
       position: relative;
       width: 100%;
-      height: 750px;
-      margin-bottom: 15px;
+      height: 600px;
       background-color: #000;
       border-radius: 8px;
       overflow: hidden;
@@ -64,91 +79,141 @@
       left: 0;
     }
     
-    .emotion-display {
-      margin-top: auto;
-      padding: 15px;
-      background-color: #e9f5f9;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-    
-    #emotion-output {
-      margin: 0;
-      font-weight: 500;
-    }
-    
-    .controls {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-    
-    .character-selector {
+    .vegetable-selector-container {
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      margin: 3px 0;
     }
     
-    .character-selector label {
+    .veggie-label {
+      font-size: 20px;
       font-weight: 500;
-      font-size: 16px;
-      min-width: 140px;
+      margin-right: 15px;
     }
     
-    .character-selector select {
-      flex: 1;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: 1px solid #ddd;
+    .vegetable-selector {
+      display: flex;
+      align-items: center;
+      gap: 15px;
     }
     
-    .generate-btn {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 12px 0;
-      border-radius: 5px;
-      font-size: 16px;
-      font-weight: 500;
+    .veggie-option {
+      font-size: 30px;
       cursor: pointer;
-      transition: background-color 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s;
+      padding: 5px;
+      border-radius: 5px;
     }
     
-    .generate-btn:hover {
-      background-color: #eac029;
+    .veggie-option:hover {
+      transform: scale(1.1);
+    }
+    
+    .veggie-option.selected {
+      box-shadow: 0 0 0 3px #f00;
+      background-color: rgba(255,0,0,0.1);
+    }
+    
+    .meme-wrapper {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .magic-wand {
+      font-size: 40px;
+      color: #eac029;
+      background: none;
+      border: none;
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: transform 0.3s;
+      z-index: 10;
+    }
+    
+    .magic-wand:hover {
+      transform: translate(-50%, -50%) rotate(15deg) scale(1.2);
     }
     
     .meme-container {
       width: 100%;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      height: 600px;
       background-color: #f9f9f9;
       border-radius: 8px;
       position: relative;
       overflow: hidden;
     }
     
+    .meme-result {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: none;
+    }
+    
     #meme-image {
-      max-width: 100%;
-      max-height: 550px;
-      object-fit: contain;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       border-radius: 8px;
     }
     
+    .meme-actions {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: none;
+      gap: 10px;
+    }
+    
+    .meme-action-button {
+      background-color: rgba(255,255,255,0.8);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      color: #333;
+      transition: background-color 0.2s;
+    }
+    
+    .meme-action-button:hover {
+      background-color: white;
+    }
+    
+    .meme-action-button.regenerate {
+      color: #eac029;
+    }
+    
+    .meme-action-button.twitter {
+      color: #1DA1F2;
+    }
+    
+    .meme-action-button.save {
+      color: #28a745;
+    }
+    
     .emotions-used {
-      width: 100%;
-      padding: 15px;
-      font-style: italic;
-      color: #555;
-      background-color: #e9f5f9;
-      border-radius: 8px;
-      margin-top: 15px;
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      right: 0;
       text-align: center;
+      font-style: italic;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 8px;
+      margin: 0;
+      border-radius: 0 0 8px 8px;
     }
     
     .loading {
@@ -180,30 +245,6 @@
       100% { transform: rotate(360deg); }
     }
     
-    .share-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-      width: 100%;
-    }
-    
-    .share-button {
-      flex: 1;
-      padding: 10px 0;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-    }
-    
-    .twitter { background-color: #1DA1F2; }
-    .save { background-color: #28a745; }
     .toast {
       position: fixed;
       top: 20px;
@@ -242,53 +283,80 @@
   <div class="toast" id="toast">Message here</div>
 
   <div class="container">
+    <!-- Emotion Detection Panel -->
     <div class="panel">
       <h2>Emotion Detection</h2>
       
-      <div id="video-container">
-        <video id="video" autoplay muted playsinline></video>
+      <div class="top-emotion" id="top-emotion">
+        Top two Emotion: Waiting for detection...
       </div>
       
-      <div class="emotion-display">
-        <p id="emotion-output">Detecting emotions...</p>
+      <div class="video-wrapper">
+        <div id="video-container">
+          <video id="video" autoplay muted playsinline></video>
+        </div>
       </div>
     </div>
     
-
+    <!-- Meme Generator Panel -->
     <div class="panel">
       <h2>Meme Generator</h2>
       
-      <div class="controls">
-        <div class="character-selector">
-          <label for="character-select">Choose a character:</label>
-          <select id="character-select">
-            <option value="potato">Potato</option>
-            <option value="carrot" selected>Carrot</option>
-            <option value="tomato">Tomato</option>
-            <option value="broccoli">Broccoli</option>
-            <option value="corn">Corn</option>
-            <option value="eggplant">Eggplant</option>
-          </select>
+      <div class="vegetable-selector-container">
+        <div class="veggie-label">choose a veggie:</div>
+        <div class="vegetable-selector">
+          <div class="veggie-option" data-value="potato">🥔</div>
+          <div class="veggie-option selected" data-value="carrot">🥕</div>
+          <div class="veggie-option" data-value="broccoli">🥦</div>
+          <div class="veggie-option" data-value="corn">🌽</div>
+          <div class="veggie-option" data-value="tomato">🍅</div>
+          <div class="veggie-option" data-value="eggplant">🍆</div>
         </div>
-        
-        <button id="generate-btn" class="generate-btn">Generate Meme</button>
       </div>
       
-      <div class="meme-container">
-        <div class="loading" id="loading">
-          <div class="loading-spinner"></div>
-          <p>Generating your meme...</p>
+      <div class="meme-wrapper">
+        <div class="meme-container">
+          <button id="generate-btn" class="magic-wand">
+            <i class="fas fa-magic"></i>
+          </button>
+          
+          <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Generating your meme...</p>
+          </div>
+          
+          <div class="meme-result" id="meme-result">
+            <img id="meme-image" alt="Your generated meme will appear here">
+            <div class="emotions-used" id="emotions-used"></div>
+          </div>
+          
+          <div class="meme-actions" id="meme-actions">
+            <button class="meme-action-button regenerate" id="regenerate-btn" title="Regenerate Meme">
+              <i class="fas fa-redo-alt"></i>
+            </button>
+            <button class="meme-action-button twitter" id="share-twitter" title="Share on Twitter">
+              <i class="fab fa-twitter"></i>
+            </button>
+            <button class="meme-action-button save" id="download-meme" title="Save Meme">
+              <i class="fas fa-download"></i>
+            </button>
+          </div>
         </div>
-        <img id="meme-image" alt="Your generated meme will appear here">
-      </div>
-      
-      <div class="emotions-used" id="emotions-used"></div>
-      
-      <div class="share-buttons" id="share-buttons">
-        <button class="share-button twitter" id="share-twitter">Twitter</button>
-        <button class="share-button save" id="download-meme">Save Meme</button>
       </div>
     </div>
   </div>
+
+  <!-- Hidden character select for compatibility with existing code -->
+  <select id="character-select" style="display: none;">
+    <option value="potato">Potato</option>
+    <option value="carrot" selected>Carrot</option>
+    <option value="tomato">Tomato</option>
+    <option value="broccoli">Broccoli</option>
+    <option value="corn">Corn</option>
+    <option value="eggplant">Eggplant</option>
+  </select>
+  
+  <!-- Hidden share buttons for compatibility with existing code -->
+  <div id="share-buttons" style="display: none;"></div>
 </body>
 </html>

@@ -14,8 +14,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 API_URL = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-dev"
 HF_TOKEN = os.getenv("HF_TOKEN") or "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"
 
+# Ensure directories exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs('static/models', exist_ok=True)
+os.makedirs('static/js', exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -105,4 +107,4 @@ def upload_base64():
 if __name__ == '__main__':
     debug_mode = os.getenv('FLASK_ENV') == 'development'
     print(f"Starting Emotion Meme Generator - Debug mode: {debug_mode}")
-    app.run(debug=debug_mode, port=5064)
+    app.run(debug=debug_mode, port=5076)
