@@ -49,7 +49,7 @@ def generate():
     
     try:
         print(f"Sending request to Hugging Face with prompt: {prompt}")
-        response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=600)
         
         print(f"Response status: {response.status_code}")
         print(f"Response headers: {response.headers}")
@@ -107,4 +107,4 @@ def upload_base64():
 if __name__ == '__main__':
     debug_mode = os.getenv('FLASK_ENV') == 'development'
     print(f"Starting Emotion Meme Generator - Debug mode: {debug_mode}")
-    app.run(debug=debug_mode, port=5076)
+    app.run(debug=debug_mode, port=5083)

@@ -20,7 +20,7 @@ const downloadMeme = document.getElementById('download-meme');
 // Current emotions state
 let currentEmotions = {};
 let generatedMemeUrl = '';
-let uploadedImageUrl = ''; // Store URL after uploading to server
+let uploadedImageUrl = ''; 
 let selectedVeggie = 'carrot'; // Default veggie
 
 // Show toast notification
@@ -36,16 +36,9 @@ function showToast(message, duration = 3000) {
 // Set up veggie options click handlers
 veggieOptions.forEach(option => {
   option.addEventListener('click', () => {
-    // Remove selected class from all options
     veggieOptions.forEach(opt => opt.classList.remove('selected'));
-    
-    // Add selected class to clicked option
     option.classList.add('selected');
-    
-    // Update selected veggie value
     selectedVeggie = option.dataset.value;
-    
-    // Update the hidden select for compatibility
     characterSelect.value = selectedVeggie;
   });
 });
@@ -89,7 +82,7 @@ video.addEventListener('play', () => {
   
   faceapi.matchDimensions(canvas, displaySize);
   
-  // Detect faces and emotions every 500ms
+
   setInterval(async () => {
     const detections = await faceapi
       .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
@@ -97,21 +90,17 @@ video.addEventListener('play', () => {
     
     const resizedDetections = faceapi.resizeResults(detections, displaySize);
     
-    // Clear the canvas
+
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Only draw the detection boxes (face rectangles)
+
     if (resizedDetections.length > 0) {
       resizedDetections.forEach(detection => {
         const box = detection.detection.box;
-        
-        // Draw a blue rectangle around the face
         ctx.strokeStyle = '#0063B2';
         ctx.lineWidth = 3;
         ctx.strokeRect(box.x, box.y, box.width, box.height);
-        
-        // Draw the confidence score
         ctx.fillStyle = '#0063B2';
         ctx.fillRect(box.x, box.y - 30, 60, 30);
         ctx.fillStyle = '#FFF';
@@ -123,16 +112,12 @@ video.addEventListener('play', () => {
         );
       });
       
-      // Update current emotions from first detected face
+
       currentEmotions = resizedDetections[0].expressions;
-      
-      // Get top 2 emotions
       const top2 = Object.entries(currentEmotions)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 2)
         .map(e => e[0]);
-      
-      // Update the top emotion display
       topEmotion.innerText = `Top two Emotion: ${top2.join(', ')}`;
     } else {
       topEmotion.innerText = "No face detected";
@@ -140,7 +125,7 @@ video.addEventListener('play', () => {
   }, 500);
 });
 
-// Generate meme function (used by both generate and regenerate buttons)
+// Generate meme function 
 async function generateMeme() {
   console.log("Generating meme");
   
@@ -149,14 +134,10 @@ async function generateMeme() {
     return;
   }
   
-  // Reset previous uploaded URL
+
   uploadedImageUrl = '';
-  
-  // Hide generate button and show loading
   generateBtn.style.display = 'none';
   loadingDiv.style.display = 'flex';
-  
-  // Hide meme result and actions while loading
   memeResult.style.display = 'none';
   memeActions.style.display = 'none';
   
@@ -167,7 +148,7 @@ async function generateMeme() {
   
   const emotionWords = top2.map(e => e[0]).join(', ');
   
-  // Get character from selected veggie
+  // Get character from veggie
   const character = selectedVeggie;
   
   // Create prompt for image generation
@@ -186,23 +167,16 @@ async function generateMeme() {
     
     const data = await response.json();
     console.log("API response received:", data.image ? "Image data received" : "Error: " + data.error);
-    
-    // Hide loading indicator
     loadingDiv.style.display = 'none';
     
     if (data.image) {
-      // Store the generated image URL
       generatedMemeUrl = "data:image/png;base64," + data.image;
-      
-      // Display the image
       memeImage.src = generatedMemeUrl;
       memeResult.style.display = 'block';
       console.log("Meme image set and displayed");
-      
-      // Show action buttons
       memeActions.style.display = 'flex';
       
-      // Display emotions used for this meme
+
       const emotionPercentages = top2.map(e => `${e[0]} (${(e[1] * 100).toFixed(1)}%)`);
       emotionsUsed.innerHTML = `
         ${emotionPercentages.join(', ')}
@@ -213,30 +187,21 @@ async function generateMeme() {
     } else {
       console.error("Failed to generate meme:", data.error);
       showToast("Failed to generate meme: " + (data.error || "Unknown error"));
-      
-      // Show generate button again if there was an error
       generateBtn.style.display = 'block';
     }
   } catch (error) {
     console.error("Error generating meme:", error);
     
-    // Hide loading indicator in case of error
+
     loadingDiv.style.display = 'none';
-    
-    // Show generate button again
     generateBtn.style.display = 'block';
-    
     showToast("Error generating meme: " + error.message);
   }
 }
 
 // Generate button click handler
 generateBtn.addEventListener('click', generateMeme);
-
-// Regenerate button click handler
 regenerateBtn.addEventListener('click', generateMeme);
-
-// Upload the generated image to the server
 async function uploadImageToServer() {
   if (!generatedMemeUrl) return null;
   
@@ -265,9 +230,7 @@ async function uploadImageToServer() {
 
 // Share on Twitter
 shareToTwitter.addEventListener('click', async () => {
-  // Make sure we have a URL to share
   if (!uploadedImageUrl) {
-    // Try to upload the image first
     const imageUrl = await uploadImageToServer();
     
     if (!imageUrl) {
@@ -279,8 +242,6 @@ shareToTwitter.addEventListener('click', async () => {
   // Create Twitter share URL
   const text = `Check out my emotion-based meme created with Emotion Meme Generator!`;
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(uploadedImageUrl)}`;
-  
-  // Open Twitter in a new window
   window.open(twitterUrl, '_blank');
   showToast("Opening Twitter to share your meme!");
 });
