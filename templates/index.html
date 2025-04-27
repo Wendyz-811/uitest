@@ -2,17 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Emotion-Based Meme Generator</title>
+  <title>Epic Veggie Meme Factory</title>
   <script defer src="{{ url_for('static', filename='face-api.min.js') }}"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+    
     body {
       margin: 0;
       padding: 20px;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f0f2f5;
+      font-family: 'Fredoka', sans-serif;
+      background-color: #ffe5f1;
       color: #333;
+      background-image: 
+        radial-gradient(#fd79a8 1px, transparent 1px),
+        radial-gradient(#fd79a8 1px, transparent 1px);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
     }
     
     .container {
@@ -26,22 +33,30 @@
     .panel {
       flex: 1;
       background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(253, 121, 168, 0.2);
+      padding: 20px 20px 15px 20px; /* 减小底部内边距 */
       display: flex;
       flex-direction: column;
       height: 800px;
+      border: 3px solid #fd79a8;
+      position: relative;
+      overflow: hidden;
     }
+    
+
     
     h2 {
       margin-top: 0;
-      color: #333;
+      color: #fd79a8;
       text-align: center;
       padding-bottom: 10px;
-      border-bottom: 1px solid #eee;
+      border-bottom: 3px dashed #fd79a8;
       font-weight: bold;
       font-size: 28px;
+      z-index: 1;
+      position: relative;
+      text-transform: uppercase;
     }
     
     .top-emotion {
@@ -49,12 +64,15 @@
       font-size: 20px;
       margin: 10px 0 20px;
       font-weight: 500;
+      opacity: 0.2; /* Hide the emotion text as requested */
+      height: 20px;
     }
     
     .video-wrapper {
       flex: 1;
       display: flex;
       flex-direction: column;
+      margin-top: 17px;
     }
     
     #video-container {
@@ -62,7 +80,7 @@
       width: 100%;
       height: 600px;
       background-color: #000;
-      border-radius: 8px;
+      border-radius: 20px;
       overflow: hidden;
     }
     
@@ -77,42 +95,69 @@
       position: absolute;
       top: 0;
       left: 0;
+      filter: hue-rotate(290deg); /* Make the detection frame pink instead of blue */
     }
+    
+
     
     .vegetable-selector-container {
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 3px 0;
+      margin: 0 0 15px 0; /* 改变上下边距 */
+      background-color: #ffeef5;
+      padding: 10px;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      position: relative;
+      top: -20px; /* 向上移动 */
     }
     
     .veggie-label {
       font-size: 20px;
-      font-weight: 500;
+      font-weight: 700;
       margin-right: 15px;
+      color: #fd79a8;
     }
     
     .vegetable-selector {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 5px; /* 减小间距 */
     }
     
     .veggie-option {
       font-size: 30px;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      padding: 5px;
-      border-radius: 5px;
+      transition: transform 0.3s, box-shadow 0.2s;
+      padding: 3px;
+      border-radius: 15px;
+      transform-origin: center;
+      margin: 0 3px; /* 添加水平间距 */
     }
     
     .veggie-option:hover {
-      transform: scale(1.1);
+      transform: scale(1.2) rotate(10deg);
+      animation: wobble 0.5s ease;
+    }
+    
+    @keyframes wobble {
+      0%, 100% { transform: scale(1.2) rotate(10deg); }
+      25% { transform: scale(1.2) rotate(-5deg); }
+      50% { transform: scale(1.2) rotate(5deg); }
+      75% { transform: scale(1.2) rotate(-3deg); }
     }
     
     .veggie-option.selected {
-      box-shadow: 0 0 0 3px #f00;
-      background-color: rgba(255,0,0,0.1);
+      box-shadow: 0 0 0 4px #fd79a8;
+      background-color: rgba(253, 121, 168, 0.2);
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 4px rgba(253, 121, 168, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(253, 121, 168, 0.2); }
+      100% { box-shadow: 0 0 0 4px rgba(253, 121, 168, 0.4); }
     }
     
     .meme-wrapper {
@@ -120,11 +165,12 @@
       position: relative;
       display: flex;
       flex-direction: column;
+      margin-top: -10px;
     }
     
     .magic-wand {
-      font-size: 40px;
-      color: #eac029;
+      font-size: 60px;
+      color: #fd79a8;
       background: none;
       border: none;
       cursor: pointer;
@@ -134,19 +180,28 @@
       transform: translate(-50%, -50%);
       transition: transform 0.3s;
       z-index: 10;
+      text-shadow: 0 0 15px rgba(253, 121, 168, 0.7);
+      animation: float-button 3s infinite ease-in-out;
+    }
+    
+    @keyframes float-button {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -60%) scale(1.1); }
     }
     
     .magic-wand:hover {
       transform: translate(-50%, -50%) rotate(15deg) scale(1.2);
+      animation: none;
     }
     
     .meme-container {
       width: 100%;
-      height: 600px;
-      background-color: #f9f9f9;
-      border-radius: 8px;
+      height: 600px; /* 确保与视频容器一致 */
+      background-color: #ffeef5;
+      border-radius: 0px;
       position: relative;
       overflow: hidden;
+      margin-top: 3px; /* 微调位置 */
     }
     
     .meme-result {
@@ -160,7 +215,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: 20px;
     }
     
     .meme-actions {
@@ -175,46 +230,37 @@
       background-color: rgba(255,255,255,0.8);
       border: none;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 18px;
+      font-size: 22px;
       color: #333;
-      transition: background-color 0.2s;
+      transition: all 0.2s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     
     .meme-action-button:hover {
       background-color: white;
+      transform: translateY(-5px);
+      box-shadow: 0 7px 15px rgba(0,0,0,0.15);
     }
     
     .meme-action-button.regenerate {
-      color: #eac029;
+      color: #fd79a8;
     }
     
-    .meme-action-button.twitter {
-      color: #1DA1F2;
+    .meme-action-button.share {
+      color: #0984e3;
     }
     
     .meme-action-button.save {
-      color: #28a745;
+      color: #00b894;
     }
     
-    .emotions-used {
-      position: absolute;
-      bottom: 10px;
-      left: 0;
-      right: 0;
-      text-align: center;
-      font-style: italic;
-      color: #fff;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 8px;
-      margin: 0;
-      border-radius: 0 0 8px 8px;
-    }
+
     
     .loading {
       position: absolute;
@@ -222,20 +268,22 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(255, 255, 255, 0.9);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       display: none;
+      z-index: 10;
+      border-radius: 20px;
     }
     
     .loading-spinner {
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid #eac029;
+      border: 5px solid #ffeef5;
+      border-top: 5px solid #fd79a8;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 60px;
+      height: 60px;
       animation: spin 1s linear infinite;
       margin-bottom: 15px;
     }
@@ -249,14 +297,15 @@
       position: fixed;
       top: 20px;
       right: 20px;
-      background-color: #333;
+      background-color: #fd79a8;
       color: white;
       padding: 15px 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(253, 121, 168, 0.4);
       display: none;
       z-index: 1000;
       animation: fadein 0.5s;
+      font-weight: bold;
     }
 
     @keyframes fadein {
@@ -284,25 +333,27 @@
 
   <div class="container">
     <div class="panel">
-      <h2>Emotion Detection</h2>
+      <h2>👀 Show Your Vibe</h2>
       
       <div class="top-emotion" id="top-emotion">
-        Top two Emotion: Waiting for detection...
+        <!-- We're hiding this as requested -->
       </div>
       
       <div class="video-wrapper">
         <div id="video-container">
           <video id="video" autoplay muted playsinline></video>
+          <!-- Emoji border will be added via JS -->
+          <div class="emoji-border" id="emoji-border"></div>
         </div>
       </div>
     </div>
     
 
     <div class="panel">
-      <h2>Meme Generator</h2>
+      <h2>✨ Create Your Veggie Meme</h2>
       
       <div class="vegetable-selector-container">
-        <div class="veggie-label">choose a veggie:</div>
+        <div class="veggie-label">Pick your veggie hero:</div>
         <div class="vegetable-selector">
           <div class="veggie-option" data-value="potato">🥔</div>
           <div class="veggie-option selected" data-value="carrot">🥕</div>
@@ -316,27 +367,27 @@
       <div class="meme-wrapper">
         <div class="meme-container">
           <button id="generate-btn" class="magic-wand">
-            <i class="fas fa-magic"></i>
+            <i class="fas fa-hat-wizard"></i>
           </button>
           
           <div class="loading" id="loading">
             <div class="loading-spinner"></div>
-            <p>Generating your meme...</p>
+            <p>✨ Cooking up your veggie meme... ✨</p>
           </div>
           
           <div class="meme-result" id="meme-result">
-            <img id="meme-image" alt="Your generated meme will appear here">
+            <img id="meme-image" alt="Your magical veggie meme will appear here">
             <div class="emotions-used" id="emotions-used"></div>
           </div>
           
           <div class="meme-actions" id="meme-actions">
-            <button class="meme-action-button regenerate" id="regenerate-btn" title="Regenerate Meme">
+            <button class="meme-action-button regenerate" id="regenerate-btn" title="Make Another Meme">
               <i class="fas fa-redo-alt"></i>
             </button>
-            <button class="meme-action-button twitter" id="share-twitter" title="Share on Twitter">
-              <i class="fab fa-twitter"></i>
+            <button class="meme-action-button share" id="share-twitter" title="Share to Community">
+              <i class="fas fa-share-alt"></i>
             </button>
-            <button class="meme-action-button save" id="download-meme" title="Save Meme">
+            <button class="meme-action-button save" id="download-meme" title="Download Your Meme">
               <i class="fas fa-download"></i>
             </button>
           </div>
@@ -345,7 +396,7 @@
     </div>
   </div>
 
-
+  <!-- Hidden elements -->
   <select id="character-select" style="display: none;">
     <option value="potato">Potato</option>
     <option value="carrot" selected>Carrot</option>
@@ -355,7 +406,6 @@
     <option value="eggplant">Eggplant</option>
   </select>
   
-
   <div id="share-buttons" style="display: none;"></div>
 </body>
 </html>
