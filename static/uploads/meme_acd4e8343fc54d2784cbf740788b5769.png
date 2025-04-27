@@ -1,0 +1,37 @@
+
+    <svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#B0C4DE;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.5" />
+            </linearGradient>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#000" flood-opacity="0.3"/>
+            </filter>
+        </defs>
+        
+        <!-- Background -->
+        <rect width="100%" height="100%" fill="url(#grad)" rx="20" ry="20"/>
+        
+        <!-- Sparkles -->
+        <circle cx="455" cy="463" r="5" fill="white" opacity="0.8416186538786994" /> <circle cx="163" cy="305" r="2" fill="white" opacity="0.6491195225639265" /> <circle cx="58" cy="426" r="3" fill="white" opacity="0.4268444486733602" /> <circle cx="173" cy="450" r="4" fill="white" opacity="0.41716664147206184" /> <circle cx="374" cy="59" r="3" fill="white" opacity="0.7747974989412372" /> <circle cx="455" cy="381" r="4" fill="white" opacity="0.5878681380495316" /> <circle cx="298" cy="98" r="2" fill="white" opacity="0.6582855871498758" /> <circle cx="425" cy="25" r="5" fill="white" opacity="0.32940093599914655" /> <circle cx="470" cy="181" r="2" fill="white" opacity="0.37703895604659554" /> <circle cx="374" cy="315" r="5" fill="white" opacity="0.4503965215020198" /> <circle cx="439" cy="58" r="3" fill="white" opacity="0.7410633362008747" /> <circle cx="95" cy="315" r="4" fill="white" opacity="0.846774669052585" /> <circle cx="429" cy="333" r="4" fill="white" opacity="0.7018976694685226" /> <circle cx="429" cy="492" r="2" fill="white" opacity="0.7865930496622247" /> <circle cx="487" cy="355" r="2" fill="white" opacity="0.6859544535391879" /> <circle cx="221" cy="322" r="3" fill="white" opacity="0.37017645407393185" /> <circle cx="365" cy="384" r="5" fill="white" opacity="0.31238662689175545" /> <circle cx="226" cy="469" r="5" fill="white" opacity="0.8523568949353804" /> <circle cx="111" cy="491" r="2" fill="white" opacity="0.7055388463640977" /> <circle cx="393" cy="54" r="3" fill="white" opacity="0.4764197436090298" /> <circle cx="143" cy="160" r="2" fill="white" opacity="0.5492440397921776" /> <circle cx="395" cy="334" r="3" fill="white" opacity="0.776763411436834" /> <circle cx="97" cy="112" r="4" fill="white" opacity="0.7656206794150162" /> <circle cx="323" cy="328" r="2" fill="white" opacity="0.5657204159035556" /> <circle cx="131" cy="342" r="4" fill="white" opacity="0.7703281264080973" /> <circle cx="107" cy="52" r="2" fill="white" opacity="0.5381239529634273" /> <circle cx="41" cy="27" r="3" fill="white" opacity="0.39345723940790633" /> <circle cx="227" cy="363" r="4" fill="white" opacity="0.39882446709670544" /> <circle cx="42" cy="114" r="5" fill="white" opacity="0.75429821348814" /> <circle cx="435" cy="68" r="5" fill="white" opacity="0.42014876653133126" /> <circle cx="455" cy="217" r="2" fill="white" opacity="0.6634131897013932" /> <circle cx="468" cy="53" r="5" fill="white" opacity="0.300446621171499" /> <circle cx="116" cy="193" r="3" fill="white" opacity="0.46852521108443457" /> <circle cx="23" cy="311" r="2" fill="white" opacity="0.48518632609141754" /> <circle cx="166" cy="154" r="2" fill="white" opacity="0.5338087890563481" /> <circle cx="420" cy="479" r="2" fill="white" opacity="0.4443250368624896" /> <circle cx="75" cy="118" r="2" fill="white" opacity="0.7849651369251942" /> <circle cx="314" cy="463" r="3" fill="white" opacity="0.697235339432731" /> <circle cx="281" cy="333" r="3" fill="white" opacity="0.38459674448356457" /> <circle cx="208" cy="345" r="5" fill="white" opacity="0.6712911065782712" /> <circle cx="304" cy="54" r="3" fill="white" opacity="0.3075579476717891" /> <circle cx="482" cy="46" r="5" fill="white" opacity="0.7645854175051252" /> <circle cx="115" cy="425" r="4" fill="white" opacity="0.338036779793859" /> <circle cx="80" cy="208" r="2" fill="white" opacity="0.845114736535374" /> <circle cx="370" cy="224" r="5" fill="white" opacity="0.3392627989161169" /> <circle cx="156" cy="372" r="4" fill="white" opacity="0.3954786982460997" /> <circle cx="212" cy="201" r="4" fill="white" opacity="0.42239304619694046" /> <circle cx="264" cy="134" r="5" fill="white" opacity="0.3650329675469552" /> <circle cx="454" cy="57" r="5" fill="white" opacity="0.7502258981917496" /> <circle cx="362" cy="202" r="2" fill="white" opacity="0.33660497228551267" />
+        
+        <!-- Veggie Emoji -->
+        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="150" text-anchor="middle" dominant-baseline="middle" filter="url(#shadow)">
+            🥕
+        </text>
+        
+        <!-- Emotions -->
+        <text x="50%" y="160" font-family="Arial, sans-serif" font-size="30" text-anchor="middle" fill="white" filter="url(#shadow)">
+            😐 neutral 😲 surprised 
+        </text>
+        
+        <!-- Fun phrase -->
+        <text x="50%" y="400" font-family="Arial, sans-serif" font-size="32" text-anchor="middle" fill="white" filter="url(#shadow)">
+            Trying to stay cool as a cucumber!
+        </text>
+        
+        <!-- Border decoration -->
+        <rect x="10" y="10" width="492" height="492" rx="15" ry="15" fill="none" stroke="white" stroke-width="5" stroke-dasharray="15,10" opacity="0.6"/>
+    </svg>
+    

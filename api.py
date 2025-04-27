@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory
 import os
 import base64
-import requests
 import uuid
-from werkzeug.utils import secure_filename
+from io import BytesIO
+import time
 
 app = Flask(__name__)
 
@@ -11,13 +11,45 @@ UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-API_URL = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-dev"
-HF_TOKEN = os.getenv("HF_TOKEN") or "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"
-
 # Ensure directories exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs('static/models', exist_ok=True)
 os.makedirs('static/js', exist_ok=True)
+
+# Global variable to store the model
+pipeline = None
+
+def load_model():
+    global pipeline
+    if pipeline is None:
+        try:
+            import torch
+            from diffusers import SanaSprintPipeline
+            
+            # Check if CUDA is available
+            if torch.cuda.is_available():
+                device = "cuda:0"
+                dtype = torch.bfloat16
+                print("Using CUDA with bfloat16")
+            else:
+                device = "cpu"
+                dtype = torch.float32
+                print("Using CPU with float32")
+            
+            # Load the model
+            print("Loading Sana Sprint model. This may take some time...")
+            pipeline = SanaSprintPipeline.from_pretrained(
+                "Efficient-Large-Model/Sana_Sprint_1.6B_1024px_diffusers",
+                torch_dtype=dtype
+            )
+            
+            pipeline.to(device)
+            print("Sana Sprint model loaded successfully")
+            return True
+        except Exception as e:
+            print(f"Failed to load model: {str(e)}")
+            return False
+    return True
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -38,41 +70,30 @@ def generate():
     if not prompt:
         return jsonify({"error": "Missing prompt"}), 400
     
-    headers = {
-        "Authorization": f"Bearer {HF_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    
-    payload = {
-        "inputs": prompt
-    }
+    # Try to load the model
+    if not load_model():
+        return jsonify({"error": "Failed to load image generation model. Check server logs."}), 500
     
     try:
-        print(f"Sending request to Hugging Face with prompt: {prompt}")
-        response = requests.post(API_URL, headers=headers, json=payload, timeout=600)
+        global pipeline
+        print(f"Generating image with prompt: {prompt}")
         
-        print(f"Response status: {response.status_code}")
-        print(f"Response headers: {response.headers}")
+        # Run image generation with Sana Sprint
+        start_time = time.time()
+        image = pipeline(prompt=prompt, num_inference_steps=2).images[0]
+        end_time = time.time()
+        print(f"Image generation took {end_time - start_time:.2f} seconds")
         
-        if response.status_code == 200 and "image" in response.headers.get("Content-Type", ""):
-            print("Successfully received image")
-            b64_image = base64.b64encode(response.content).decode('utf-8')
-            return jsonify({"image": b64_image})
-        else:
-            print(f"Error response: {response.text}")
-            error_msg = response.text
-            try:
-                error_json = response.json()
-                error_msg = error_json.get('error', error_msg)
-            except:
-                pass
-            return jsonify({"error": error_msg}), response.status_code
-            
-    except requests.exceptions.Timeout:
-        print("Request timed out")
-        return jsonify({"error": "Request timed out. The image generation is taking too long."}), 504
+        # Convert PIL image to base64
+        buffered = BytesIO()
+        image.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+        
+        print("Image generated successfully")
+        return jsonify({"image": img_str})
+    
     except Exception as e:
-        print(f"Exception: {str(e)}")
+        print(f"Error generating image: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/upload-base64', methods=['POST'])
@@ -88,7 +109,7 @@ def upload_base64():
     try:
         if ';base64,' in image_data:
             image_data = image_data.split(';base64,')[1]
-    
+        
         filename = f"meme_{uuid.uuid4().hex}.png"
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         with open(filepath, 'wb') as f:
@@ -107,4 +128,4 @@ def upload_base64():
 if __name__ == '__main__':
     debug_mode = os.getenv('FLASK_ENV') == 'development'
     print(f"Starting Emotion Meme Generator - Debug mode: {debug_mode}")
-    app.run(debug=debug_mode, port=5083)
+    app.run(debug=debug_mode, port=5124)
